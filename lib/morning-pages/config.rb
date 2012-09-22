@@ -3,19 +3,23 @@ require 'httparty'
 
 module MorningPages
   class Config
-    def initialize(config_path, server)
-      @config_path = config_path
-      @server = server
-      containing_folder = File.dirname(config_path)
+    def initialize(opts)
+      @config_path = opts[:config]
+      containing_folder = File.dirname(@config_path)
 
       unless (File.exists?(containing_folder))
         FileUtils.mkdir_p(containing_folder)
       end
 
-      @config = {}
+      @config = opts
       if (File.exists?(@config_path))
-        @config = YAML.load(File.read(@config_path))
+        @config = @config.merge(YAML.load(File.read(@config_path)))
       end
+      @server = @config[:server]
+    end
+    
+    def [](key)
+      @config[key]
     end
 
     def registered?

@@ -1,7 +1,8 @@
 module MorningPages
   class Folder
-    def initialize(options = {})
-      @dir = options[:dir]
+    def initialize(config = {})
+      @dir = config[:dir]
+      @file_extension = config[:file_extension] || ''
       if (@dir && !File.exists?(@dir))
         FileUtils.mkdir_p(@dir)
       end
@@ -12,9 +13,9 @@ module MorningPages
     end
 
     def today_path
-      File.expand_path([@dir, Time.now.strftime("%Y\-%m\-%d")].join('/'))
+      File.expand_path([@dir, Time.now.strftime("%Y\-%m\-%d") + @file_extension].join('/'))
     end
-
+    
     def get_words_for(path)
       (File.exists?(path) ? File.read(path) : "").split(" ")
     end

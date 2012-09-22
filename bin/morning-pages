@@ -13,7 +13,8 @@ end
 
 [:dir, :config].each { |key| opts[key] = File.expand_path(opts[key]) }
 
-config = MorningPages::Config.new(opts[:config], opts[:server])
+config = MorningPages::Config.new(opts)
+
 unless (config.registered?)
   say "<%= color('Welcome to Morning Pages!', :yellow) %>"
   say "We record basic stats and the fact you've posted under your chosen username at http://morning-pages.me"
@@ -25,7 +26,7 @@ unless (config.registered?)
     q.validate = /@/
   end
   if config.register!(:username => username, :email => email)
-    say "Saved to #{opts[:config]}."
+    say "Saved to #{config[:config]}."
   else
     say "<%= color('There was a problem registering your account.', :red) %> You can continue but your stats will not be saved to the website."
     if (ask "Press enter to continue, or 'q' and then enter to quit:") == 'q'
@@ -34,16 +35,16 @@ unless (config.registered?)
   end
 end
 
-pages = MorningPages::Folder.new(opts)
+pages = MorningPages::Folder.new(config)
 
 path = pages.today_path
 
-system "$EDITOR #{path}"
+system "#{config[:editor] || ENV['EDITOR']} #{path}"
 
 stats = MorningPages::Stats.new(pages.todays_words)
 puts MorningPages::TextReporter.new(stats).report
 if stats.post!(config)
-  say "Stats uploaded to #{opts[:server]}"
+  say "Stats uploaded to #{config[:server]}"
 else
   say "<%= color('There was a problem posting your stats this time.', :red) %> You can try running the problem again to retry if you want to."
 end
